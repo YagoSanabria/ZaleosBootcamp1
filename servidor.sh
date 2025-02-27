@@ -1,13 +1,38 @@
 #!/bin/bash
 
+CUMPLEREGEX=0
+function cumpleRegex(){
+	STRING="$1"
+	REGEX="$2"
+	if [[ $STRING =~ $REGEX ]]
+	then
+		echo "CUMPLE"
+	fi
+}
 
 while [ 1 ] 
 do
 QUERY=$(nc -u -l 8080 | head -n 1)
-	if [ $QUERY="/index" ]
+echo "GET request for $QUERY"
+
+	if [ $QUERY = "/index" ]
 	then
-		echo -e "contents.html" | nc -w 0 -u localhost 8080 
+		RESPONSE=$(cat web/index.html | tr -d '\n')
+		echo $RESPONSE | nc -w 0 -u localhost 8080 
+	elif [[ $QUERY =~ ^/regex/.*/.*$ ]]
+	then
+		PALABRA=echo $QUERY | #echo $IN | tr ";" "\n" 
+
+		REGEX=
+		cumpleRegex()
 	else
-		exit 1
+		RESPONSE=$(cat web/errpage.html | tr -d '\n')
+		echo $RESPONSE | nc -w 0 -u localhost 8080 
 	fi
+
+
 done
+
+
+
+exit 0
