@@ -1,5 +1,4 @@
 #!/bin/bash
-
 CUMPLEREGEX=0
 function cumpleRegex(){
 	STRING="$1"
@@ -19,7 +18,6 @@ send(){	#$1 sendInfo
 
 }
 
-
 #CLIENTE->SERVER: 1 LINEAS: CONTENTS+CKSUM separados por columnas
 QUERY=""
 recv(){
@@ -38,7 +36,6 @@ recv(){
 	fi
 }
 
-
 while [ 1 ] 
 do
 recv
@@ -47,6 +44,15 @@ echo "GET request for $QUERY"
 	if [ "$QUERY" = "/index" ]
 	then
 		RESPONSE=$(cat web/index.html | tr -d '\n')
+		send "$RESPONSE"
+	elif [ "$QUERY" = "/quijote" ]
+	then
+	RESPONSE=$(cat web/quijote.txt | tr '\n' ' ')
+		send "$RESPONSE"
+	elif [ "$QUERY" = "/quijote/grep" ]
+	then
+		RESPONSE=$(cat web/quijote.txt | grep -o "pr[a-z]*\ " | tr '\n' ' ') #Todo lo que empiece por pr: "pr[a-z]*\ " 
+		cat "$RESPONSE"
 		send "$RESPONSE"
 	else
 		RESPONSE=$(cat web/errpage.html | tr -d '\n')

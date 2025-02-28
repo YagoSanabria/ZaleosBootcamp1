@@ -18,27 +18,44 @@ recv(){
 	RESPONSE=$(nc -u -l 8080 | head -n 1)
 	echo "response is $RESPONSE"
 	REVCKSUM=$(echo "$RESPONSE" | rev | awk '{print $2}')
-	echo "revchecksum $REVCKSUM"
-
+	echo "REVCK: $REVCKSUM"
 	RESPONSE=$(echo ${RESPONSE} | sed 's/ [0-9]* [0-9]*$//')
-	echo "RESPONSE $RESPONSE"  > $WEBPATH
-	echo "REV: $REVCKSUM"
+	CKSUM=$(echo ${RESPONSE} | cksum | awk '{print $1}' | rev)
+
+	if [ $CKSUM = $REVCKSUM ]
+	then
+		echo "CKSUM correcto"
+		echo $RESPONSE  > $WEBPATH	
+	else 
+
+		echo "WARNING! CHECKSUM ERROR"  > $WEBPATH	
+	fi 
 }
 
 #check correct usage
-if [ $# -eq 0 ]
+if [ $# -gt 0 ]
 then
 
-	echo -e "Error: Incorrect usage of client.sh\nUse: $0 <param>"
+	echo -e "Error: Incorrect usage of client.sh\nUse: $0 and type the URL as input later"
 	exit 1
 fi
 
-send $1
+while [ 1 ]
+do
+	read -p "Enter a QUERY: " URI
+	if [ $URI = "exit" ]
+	then
+		break
+	fi
+	send $URI
+	recv
+	#PID=$(pidof firefox)
+	#kill -s SIGTERM $PID
+	firefox  $WEBPATH &
 
-recv
+done
 
-echo "Exited successfully"
-firefox  $WEBPATH &
+echo "[+] Exited successfully"
 exit 0
 
 
