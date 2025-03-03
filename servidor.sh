@@ -43,6 +43,11 @@ do
 recv
 echo "GET request for $QUERY"
 
+	ARGS=$(echo -e "$QUERY" | grep -o "[?&][a-zA-Z0-9=]*" | sed "1s/\?/\&/")
+
+	$QUERY=$(echo -e  "$QUERY" | grep -o "/[a-z0-9]+\?" | tr -d "\?")
+
+
 	if [ "$QUERY" = "/index" ]
 	then
 		RESPONSE=$(cat web/index.html | tr -d '\n')
@@ -53,6 +58,12 @@ echo "GET request for $QUERY"
 		send "$RESPONSE"
 	elif [ "$QUERY" = "/quijote/grep" ]
 	then
+
+
+
+
+
+
 		RESPONSE=$(cat web/quijote.txt | grep -o "pr[a-z]*\ " | tr '\n' ' ') #Todo lo que empiece por pr: "pr[a-z]*\ " 
 		cat "$RESPONSE"
 		send "$RESPONSE"

@@ -4,4 +4,4 @@
 
 Repository with Bootcamp1 demo by Yago &amp; Sebastián
 
-Client-server communication for html, json, xml or yaml file petitions 
+Client-server communication for html file petitions. Client can ask for plain html URL or with web arguments 
