@@ -1,5 +1,7 @@
 #!/bin/bash
 CUMPLEREGEX=0
+PORT=8080
+
 function cumpleRegex(){
 	STRING="$1"
 	REGEX="$2"
@@ -13,7 +15,7 @@ function cumpleRegex(){
 send(){	#$1 sendInfo
 	RESPONSE=$1
 	FINALRESPONSE=$(echo "$RESPONSE $(echo $RESPONSE | cksum)")
-	echo "$FINALRESPONSE" |nc -w 0 -u localhost 8080
+	echo "$FINALRESPONSE" |nc -w 0 -u localhost $PORT
 	echo "Sending: $FINALRESPONSE"
 
 }
@@ -22,7 +24,7 @@ send(){	#$1 sendInfo
 QUERY=""
 recv(){
 	QUERY=""
-	QUERY=$(nc -u -l 8080 | head -n 1)
+	QUERY=$(nc -u -l $PORT | head -n 1)
 	URI=$(echo $QUERY | awk '{print $1}')
 	CKSUM=$(echo $QUERY | awk '{print $2}')
 	ACTUALCKSUM=$(echo $URI | cksum | awk '{print $1}')

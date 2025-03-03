@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PORT=8080
+
 #CLIENTE->SERVER: 1 LINEA: CONTENTS+CKSUM separado por columnas
 function send(){	#$1 sendInfo
 	RESPONSE=$1
@@ -7,7 +9,7 @@ function send(){	#$1 sendInfo
 
 	SENDING="$RESPONSE $CKSUM"
 	echo "Sending: $SENDING"
-	echo "$SENDING"|nc -w 0 -u localhost 8080
+	echo "$SENDING"|nc -w 0 -u localhost $PORT
 }
 
 
@@ -15,7 +17,7 @@ function send(){	#$1 sendInfo
 #Escritura al servidor
 WEBPATH="/tmp/APIwebpage.html"
 recv(){
-	RESPONSE=$(nc -u -l 8080 | head -n 1)
+	RESPONSE=$(nc -u -l $PORT | head -n 1)
 	echo "response is $RESPONSE"
 	REVCKSUM=$(echo "$RESPONSE" | rev | awk '{print $2}')
 	echo "REVCK: $REVCKSUM"
