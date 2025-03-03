@@ -51,8 +51,6 @@ do
 	fi
 	send $URI
 	recv
-	#PID=$(pidof firefox)
-	#kill -s SIGTERM $PID
 	firefox  $WEBPATH &
 
 done
