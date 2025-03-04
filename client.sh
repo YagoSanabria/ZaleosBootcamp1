@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# ! Warning 
 #Version of netcat needed: OpenBSD metcat (Debian patchlevel 1.226-1ubuntu2)
 #If not, wrong behaviour of netcat can occur
 
