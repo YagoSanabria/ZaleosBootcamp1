@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Version of netcat needed: OpenBSD metcat (Debian patchlevel 1.226-1ubuntu2)
+#If not, wrong behaviour of netcat can occur
+
 PORT=8080
 
 #CLIENT->SERVER: 1 LINE: CONTENTS+CKSUM divided by columns
