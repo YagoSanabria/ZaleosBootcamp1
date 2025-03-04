@@ -1,34 +1,32 @@
 #!/bin/bash
 PORT=8080
 
-CUMPLEREGEX=0
-function cumpleRegex(){
-	CUMPLEREGEX=0
+ISREGEX=0
+function isRegex(){
+	ISREGEX=0
 	STRING="$1"
 	REGEX="$2"
 	if [[ $STRING =~ $REGEX ]]
 	then
-		CUMPLEREGEX=1
+		ISREGEX=1
 	fi
 }
 
 ARGNAME=0
 ARGVALUE=0
 function translateArgument(){
-ARGNAME=$(echo $1 |  grep -oE '^[^=]+')
-ARGVALUE=$(echo $1 | grep -oE '=[^=]*' | sed "1s/\=//")
+	ARGNAME=$(echo $1 |  grep -oE '^[^=]+')
+	ARGVALUE=$(echo $1 | grep -oE '=[^=]*' | sed "1s/\=//")
 }
 
-#SERVER->CLIENTE: 1 LINEAS: CONTENTS+CKSUM
-send(){	#$1 sendInfo
+#SERVER->CLIENT: 1 LINE: CONTENTS+CKSUM
+send(){	#$1 arg = sendInfo
 	RESPONSE=$1
 	FINALRESPONSE=$(echo "$RESPONSE $(echo $RESPONSE | cksum)")
 	echo "$FINALRESPONSE" |nc -w 0 -u localhost $PORT
-	#echo "Sending: $FINALRESPONSE"
-
 }
 
-#CLIENTE->SERVER: 1 LINEAS: CONTENTS+CKSUM separados por columnas
+#CLIENT->SERVER: 1 LINE: CONTENTS+CKSUM divided by columns
 QUERY=""
 recv(){
 	QUERY=""
@@ -37,8 +35,6 @@ recv(){
 	CKSUM=$(echo $QUERY | awk '{print $2}')
 	ACTUALCKSUM=$(echo $URI | cksum | awk '{print $1}')
 
-	echo "Parameters: QUERY: $QUERY,URI: $URI,CKSUM: $CKSUM,ACTUALCKSUM:$ACTUALCKSUM"
-
 	if [ $CKSUM = $ACTUALCKSUM ]
 	then
 		echo "REQUEST ACCEPTED TO $URI"
@@ -46,10 +42,11 @@ recv(){
 	fi
 }
 
+#server loop
 while [ 1 ] 
 do
-recv
-echo "GET request for $QUERY"
+	recv
+	echo "GET request for $QUERY"
 
 	URI=$(echo -e  "$QUERY" | grep -oE "/[a-z0-9/]+(\?|$)" | tr -d "?")
 	ARGS=$(echo -e "$QUERY" | grep -oP "[?&][.,\")(a-zA-Z0-9=\*\]\[\-]*" | sed "1s/\?/\&/")
@@ -63,8 +60,8 @@ echo "GET request for $QUERY"
 	fi
 
 	#GET /index
-	cumpleRegex "$URI" "^/index" 
-	if [ $CUMPLEREGEX -eq 1 ]
+	isRegex "$URI" "^/index" 
+	if [ $ISREGEX -eq 1 ]
 	then
 		RESPONSE=$(cat web/index.html | tr -d '\n')
 		send "$RESPONSE"
@@ -72,8 +69,8 @@ echo "GET request for $QUERY"
 	fi
 
 	#GET /quijote
-	cumpleRegex "$URI" "^/quijote$" 
-	if [ $CUMPLEREGEX -eq 1 ]
+	isRegex "$URI" "^/quijote$" 
+	if [ $ISREGEX -eq 1 ]
 	then
 		RESPONSE=$(cat web/quijote.txt | tr '\n' ' ')
 		send "$RESPONSE"
@@ -81,8 +78,8 @@ echo "GET request for $QUERY"
 	fi
 
 	#GET /quijote/grep?regex=...
-	cumpleRegex "$URI" "^/quijote/grep" #CUMPLEREGEX
-	if [ $CUMPLEREGEX -eq 1 ]
+	isRegex "$URI" "^/quijote/grep" #ISREGEX
+	if [ $ISREGEX -eq 1 ]
 	then
 		REGEXVALUE=0
 		for INFO in $ARGS
@@ -101,9 +98,9 @@ echo "GET request for $QUERY"
 		
 		if [ $NULLRESPONSE -eq 1 ]
 		then
-			RESPONSE="No match was found to regex: $ARGVALUE"
+			RESPONSE="No match was found for regex: $ARGVALUE"
 		fi
-		echo "LA RESPUESTA ES $RESPONSE"
+		echo "Anser is: $RESPONSE"
 		send "$RESPONSE"
 		continue
 	fi
@@ -111,4 +108,5 @@ echo "GET request for $QUERY"
 	RESPONSE=$(cat web/errpage.html | tr -d '\n')
 	send "$RESPONSE"
 done
+#exit
 exit 0
